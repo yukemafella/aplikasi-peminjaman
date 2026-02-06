@@ -3,15 +3,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login_page.dart';
 
 void main() async {
-  // 1. Inisialisasi binding Flutter
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. Inisialisasi Supabase
   await Supabase.initialize(
-    url: 'https://uddtkqdljfgenjibxrwv.supabase.co', 
-    // PERINGATAN: AnonKey di bawah ini salah format. 
-    // Cari di Dashboard Supabase yang dimulai dengan 'eyJ...'
-    anonKey: 'sb_publishable_xeuY8wNysgeJF9D4noNCGw_aMxWD_I6', 
+    url: 'https://uddtkqdljfgenjibxrwv.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkZHRrcWRsamZnZW5qaWJ4cnd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1ODIzMTIsImV4cCI6MjA4NDE1ODMxMn0.vHKA2q91ByXYmgte9bjQi4_21SJaSxOqrHhsSJZ6kbI',
   );
 
   runApp(const MyApp());
@@ -22,9 +19,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: LoginPage(), // LOGIN → nanti pindah ke HomePage
     );
   }
 }
