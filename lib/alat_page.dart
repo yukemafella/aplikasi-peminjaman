@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dashboard_page.dart';
 
 class AlatPage extends StatefulWidget {
   const AlatPage({super.key});
@@ -87,7 +88,6 @@ class _AlatPageState extends State<AlatPage> {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      // 🔍 SEARCH (UI SAJA)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
@@ -101,10 +101,7 @@ class _AlatPageState extends State<AlatPage> {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 12),
-
-                      // 🔘 FILTER
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -113,10 +110,7 @@ class _AlatPageState extends State<AlatPage> {
                           categoryButton('Seni'),
                         ],
                       ),
-
                       const SizedBox(height: 16),
-
-                      // 📦 GRID ALAT
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -196,7 +190,6 @@ class _AlatPageState extends State<AlatPage> {
               ),
       ),
 
-      // ➕ FLOATING BUTTON
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -211,6 +204,30 @@ class _AlatPageState extends State<AlatPage> {
             onPressed: () {},
             child: const Icon(Icons.category),
           ),
+        ],
+      ),
+
+      // 🔥 NAVBAR DITAMBAHKAN DI SINI
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: const Color(0xFF3488BC),
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        currentIndex: 1,
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const DashboardPage()),
+            );
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+          BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Alat'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Pengguna'),
+          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Aktivitas'),
         ],
       ),
     );

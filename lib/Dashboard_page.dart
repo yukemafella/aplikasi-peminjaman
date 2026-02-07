@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart'; // Pastikan di-import untuk navigasi balik
-
+import 'alat_page.dart';
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
@@ -202,16 +202,26 @@ class DashboardPage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: const Color(0xFF3488BC),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white70,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Alat'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Pengguna'),
-          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Aktivitas'),
+     bottomNavigationBar: BottomNavigationBar(
+  type: BottomNavigationBarType.fixed,
+  backgroundColor: const Color(0xFF3488BC),
+  selectedItemColor: Colors.white,
+  unselectedItemColor: Colors.white70,
+  onTap: (index) {
+    if (index == 1) { // Index 1 = Menu Alat
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AlatPage()),
+      );
+    }
+  },
+  items: const [
+    BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+    BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Alat'),
+    BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Pengguna'),
+    BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Aktivitas'),
+
+
         ],
       ),
     );
