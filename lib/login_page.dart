@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Dashboard_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dashboard_page.dart' hide DashboardPage; 
+import 'dashboard_page.dart' hide DashboardPage;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -72,8 +72,8 @@ class _LoginPageState extends State<LoginPage> {
               Text(
                 "Siraseta Brantas",
                 style: TextStyle(
-                  fontSize: 24, 
-                  fontWeight: FontWeight.bold, 
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                   color: Colors.blue[900]
                 ),
               ),
