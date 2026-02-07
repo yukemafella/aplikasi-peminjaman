@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dashboard_page.dart';
+import 'aktivitas_page.dart'; // Pastikan file ini ada
 
 class AlatPage extends StatefulWidget {
   const AlatPage({super.key});
@@ -12,7 +13,6 @@ class AlatPage extends StatefulWidget {
 class _AlatPageState extends State<AlatPage> {
   String selectedCategory = 'All';
   bool isLoading = true;
-
   List<Map<String, dynamic>> alatList = [];
 
   @override
@@ -24,6 +24,7 @@ class _AlatPageState extends State<AlatPage> {
   // 🔥 AMBIL DATA DARI SUPABASE
   Future<void> fetchAlat() async {
     try {
+      setState(() => isLoading = true);
       final response = await Supabase.instance.client
           .from('alat')
           .select()
@@ -39,17 +40,15 @@ class _AlatPageState extends State<AlatPage> {
     }
   }
 
-  // 🔎 FILTER
+  // 🔎 FILTER LOGIC
   List<Map<String, dynamic>> get filteredAlat {
     if (selectedCategory == 'All') return alatList;
-
     int kategoriId = selectedCategory == 'Olahraga' ? 1 : 2;
     return alatList.where((a) => a['id_kategori'] == kategoriId).toList();
   }
 
   Widget categoryButton(String title) {
     final isActive = selectedCategory == title;
-
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -59,14 +58,14 @@ class _AlatPageState extends State<AlatPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: isActive ? Colors.blue : Colors.white,
+          color: isActive ? const Color(0xFF3488BC) : Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.blue),
+          border: Border.all(color: const Color(0xFF3488BC)),
         ),
         child: Text(
           title,
           style: TextStyle(
-            color: isActive ? Colors.white : Colors.blue,
+            color: isActive ? Colors.white : const Color(0xFF3488BC),
             fontSize: 12,
           ),
         ),
@@ -78,7 +77,6 @@ class _AlatPageState extends State<AlatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: SafeArea(
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -88,6 +86,7 @@ class _AlatPageState extends State<AlatPage> {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
+                      // SEARCH BAR
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
@@ -98,10 +97,12 @@ class _AlatPageState extends State<AlatPage> {
                           decoration: InputDecoration(
                             hintText: 'Cari.....',
                             border: InputBorder.none,
+                            prefixIcon: Icon(Icons.search),
                           ),
                         ),
                       ),
                       const SizedBox(height: 12),
+                      // CATEGORY FILTER
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -111,12 +112,12 @@ class _AlatPageState extends State<AlatPage> {
                         ],
                       ),
                       const SizedBox(height: 16),
+                      // GRID DAFTAR ALAT
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: filteredAlat.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
@@ -124,13 +125,12 @@ class _AlatPageState extends State<AlatPage> {
                         ),
                         itemBuilder: (context, index) {
                           final alat = filteredAlat[index];
-                          final bool tersedia =
-                              alat['status'] == 'Tersedia';
+                          final bool tersedia = alat['status'] == 'Tersedia';
 
                           return Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
+                              border: Border.all(color: Colors.grey.shade300),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
@@ -139,45 +139,39 @@ class _AlatPageState extends State<AlatPage> {
                                 Align(
                                   alignment: Alignment.topRight,
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: tersedia
-                                          ? Colors.green
-                                          : Colors.red,
-                                      borderRadius:
-                                          BorderRadius.circular(10),
+                                      color: tersedia ? Colors.green : Colors.red,
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Text(
                                       alat['status'],
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10),
+                                      style: const TextStyle(color: Colors.white, fontSize: 10),
                                     ),
                                   ),
                                 ),
                                 const Spacer(),
                                 Container(
-                                  height: 60,
+                                  height: 70,
                                   width: double.infinity,
-                                  color: Colors.grey[300],
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                   child: alat['foto'] != null
-                                      ? Image.network(
-                                          alat['foto'],
-                                          fit: BoxFit.cover,
-                                        )
-                                      : const Icon(Icons.image),
+                                      ? Image.network(alat['foto'], fit: BoxFit.contain)
+                                      : const Icon(Icons.image, color: Colors.grey),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   alat['nama_alat'],
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
                                   'Stok : ${alat['stok']} Unit',
-                                  style:
-                                      const TextStyle(fontSize: 12),
+                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                                 ),
                               ],
                             ),
@@ -189,45 +183,57 @@ class _AlatPageState extends State<AlatPage> {
                 ),
               ),
       ),
-
+      // FLOATING ACTION BUTTONS
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           FloatingActionButton(
             heroTag: 'tambah',
+            backgroundColor: const Color(0xFF3488BC),
             onPressed: () {},
-            child: const Icon(Icons.add),
+            child: const Icon(Icons.add, color: Colors.white),
           ),
           const SizedBox(height: 10),
           FloatingActionButton(
             heroTag: 'kategori',
+            backgroundColor: Colors.orange,
             onPressed: () {},
-            child: const Icon(Icons.category),
+            child: const Icon(Icons.category, color: Colors.white),
           ),
         ],
       ),
-
-      // 🔥 NAVBAR DITAMBAHKAN DI SINI
+      // 🔥 NAVBAR DENGAN NAVIGASI AKTIF
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: const Color(0xFF3488BC),
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white70,
-        currentIndex: 1,
+        currentIndex: 2, // Halaman Alat (Index 2)
         onTap: (index) {
           if (index == 0) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                  builder: (context) => const DashboardPage()),
+              MaterialPageRoute(builder: (context) => const DashboardPage()),
             );
+          } else if (index == 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const  AktivitasPage()),
+            );
+          } else if (index == 2) {
+            fetchAlat(); // Refresh data jika menekan menu yang sama
+          } else if (index == 3) {
+            // Navigasi Laporan (Jika sudah ada filenya)
+          } else if (index == 4) {
+            // Navigasi Peminjaman (Jika sudah ada filenya)
           }
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Alat'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Pengguna'),
-          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Aktivitas'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Beranda'),
+          BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: 'Aktivitas'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Alat'),
+          BottomNavigationBarItem(icon: Icon(Icons.insert_drive_file_outlined), label: 'Pengembalian'),
+          BottomNavigationBarItem(icon: Icon(Icons.handshake_outlined), label: 'Peminjaman'),
         ],
       ),
     );

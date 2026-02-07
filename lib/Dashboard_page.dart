@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart'; // Pastikan di-import untuk navigasi balik
+import 'login_page.dart';
 import 'alat_page.dart';
+import 'aktivitas_page.dart';
+
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
-  // Fungsi untuk menampilkan Pop-up Pengaturan & Logout
   void _showProfileDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -28,16 +29,11 @@ class DashboardPage extends StatelessWidget {
                 const Text("Yuke", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const Text("Petugas", style: TextStyle(color: Colors.grey)),
                 const SizedBox(height: 20),
-                
-                // Form Field (Read Only sesuai desain)
                 _buildDisabledField("Nama", "Yuke"),
                 _buildDisabledField("Email", "Yuke@gmail.com"),
                 _buildDisabledField("Password", "****", isPassword: true),
                 _buildDisabledField("Sebagai", "Admin"),
-                
                 const SizedBox(height: 30),
-                
-                // Tombol Logout Utama
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -57,7 +53,6 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  // Fungsi Konfirmasi Logout (Gambar Kanan)
   void _showLogoutConfirmation(BuildContext context) {
     showDialog(
       context: context,
@@ -76,10 +71,9 @@ class DashboardPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // Tombol Iya (Hijau) -> Kembali ke Login
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).pop(); // Tutup dialog
+                      Navigator.of(context).pop();
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (context) => const LoginPage()),
                       );
@@ -87,7 +81,6 @@ class DashboardPage extends StatelessWidget {
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                     child: const Text("Iya", style: TextStyle(color: Colors.white)),
                   ),
-                  // Tombol Tidak (Merah)
                   ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -102,7 +95,6 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  // Widget Helper untuk Field di Dialog
   Widget _buildDisabledField(String label, String value, {bool isPassword = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -136,7 +128,6 @@ class DashboardPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Profil (DIBERIKAN GESTURE DETECTOR)
               GestureDetector(
                 onTap: () => _showProfileDialog(context),
                 child: Row(
@@ -144,104 +135,91 @@ class DashboardPage extends StatelessWidget {
                     const CircleAvatar(
                       radius: 30,
                       backgroundColor: Colors.black12,
-                      child: Icon(Icons.person, size: 40, color: Colors.black),
+                      child: Icon(Icons.person_outline, size: 40, color: Colors.black),
                     ),
                     const SizedBox(width: 15),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Text("Yuke", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        Text("Admin!", style: TextStyle(color: Colors.grey)),
+                        Text("Yuke", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        Text("Petugas", style: TextStyle(color: Colors.grey)),
                       ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
-
-              // --- Bagian Statistik & Grafik Tetap Sama ---
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildStatCard("Total alat", "10"),
-                  _buildStatCard("Pinjaman aktif", "8"),
-                  _buildStatCard("Barang rusak", "3"),
-                ],
-              ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 40),
               const Center(
-                child: Text("Grafik alat yang sering di pinjam", 
-                  style: TextStyle(fontWeight: FontWeight.w500)),
+                child: Text("Grafik alat yang sering di pinjam",
+                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               Container(
                 height: 150,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Colors.grey.shade300))
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    _buildBar(100, Colors.black12),
-                    _buildBar(80, Colors.blue),
-                    _buildBar(50, Colors.black12),
-                    _buildBar(120, Colors.blue),
-                    _buildBar(40, Colors.black12),
-                    _buildBar(70, Colors.blue),
+                    _buildBar(140, Colors.grey.shade100),
+                    _buildBar(110, const Color(0xFF3488BC)),
+                    _buildBar(80, Colors.grey.shade100),
+                    _buildBar(125, const Color(0xFF3488BC)),
+                    _buildBar(60, Colors.grey.shade100),
+                    _buildBar(100, const Color(0xFF3488BC)),
                   ],
                 ),
               ),
+              const Divider(thickness: 1),
               const SizedBox(height: 30),
-              _buildActivityItem("Sanjaya", "30/01/2026", "Peminjam", Colors.grey),
-              _buildActivityItem("Clara", "30/01/2026", "Petugas", Colors.blue.shade300),
-              _buildActivityItem("Aisya", "30/01/2026", "Peminjam", Colors.grey),
-              _buildActivityItem("Rara", "30/01/2026", "Petugas", Colors.blue.shade300),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("Alat yang di Pinjam",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: const Text("Detail", style: TextStyle(fontSize: 12)),
+                  )
+                ],
+              ),
+              const SizedBox(height: 15),
+              _buildBorrowedItem("Bola basket", "Olahraga", "1 unit", Icons.sports_basketball),
+              _buildBorrowedItem("Gitar", "Musik", "1 unit", Icons.music_note),
             ],
           ),
         ),
       ),
-     bottomNavigationBar: BottomNavigationBar(
-  type: BottomNavigationBarType.fixed,
-  backgroundColor: const Color(0xFF3488BC),
-  selectedItemColor: Colors.white,
-  unselectedItemColor: Colors.white70,
-  onTap: (index) {
-    if (index == 1) { // Index 1 = Menu Alat
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const AlatPage()),
-      );
-    }
-  },
-  items: const [
-    BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-    BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Alat'),
-    BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Pengguna'),
-    BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Aktivitas'),
-
-
-        ],
-      ),
-    );
-  }
-
-  // --- Widget Helpers (StatCard, Bar, ActivityItem) tetap sama ---
-  Widget _buildStatCard(String title, String value) {
-    return Container(
-      width: 100,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
-      ),
-      child: Column(
-        children: [
-          Text(title, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-          const SizedBox(height: 5),
-          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: const Color(0xFF3488BC),
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white.withOpacity(0.8),
+        currentIndex: 0,
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AktivitasPage()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AlatPage()),
+            );
+          }
+          // Logika navigasi index lainnya bisa ditambahkan di sini
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Beranda'),
+          BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: 'Aktivitas'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Alat'), // Ikon Keranjang
+          BottomNavigationBarItem(icon: Icon(Icons.insert_drive_file_outlined), label: 'Pengembalian'),
+          BottomNavigationBarItem(icon: Icon(Icons.handshake_outlined), label: 'Peminjaman'), // Ikon Peminjaman Baru
         ],
       ),
     );
@@ -249,34 +227,47 @@ class DashboardPage extends StatelessWidget {
 
   Widget _buildBar(double height, Color color) {
     return Container(
-      width: 30,
+      width: 35,
       height: height,
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(4),
+      ),
     );
   }
 
-  Widget _buildActivityItem(String name, String date, String role, Color roleColor) {
+  Widget _buildBorrowedItem(String name, String category, String unit, IconData icon) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Nama : $name"),
-              Text("Tanggal : $date"),
-            ],
+          CircleAvatar(
+            radius: 25,
+            backgroundColor: Colors.orange.shade100,
+            child: Icon(icon, color: Colors.orange, size: 30),
+          ),
+          const SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(category, style: const TextStyle(color: Colors.grey)),
+              ],
+            ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(color: roleColor, borderRadius: BorderRadius.circular(20)),
-            child: Text(role, style: const TextStyle(color: Colors.white, fontSize: 10)),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(unit, style: const TextStyle(fontWeight: FontWeight.bold)),
           )
         ],
       ),
