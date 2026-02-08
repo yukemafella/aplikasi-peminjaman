@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/admin_page.dart';
+import 'package:flutter_application_1/admin_pengguna_page.dart';
+import 'package:flutter_application_1/peminjaman_page.dart';
+import 'package:flutter_application_1/pengembalian_admin_page.dart';
 import 'login_page.dart';
 import 'alat_page.dart';
 import 'aktivitas_page.dart';
@@ -211,6 +215,21 @@ class DashboardPage extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (context) => const AlatPage()),
             );
+          }else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AdminPenggunaPage()),
+            );
+          }else if (index == 4) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PengembalianAdminPage()),
+            );
+          }else if (index == 5) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PeminjamanPage()),
+            );
           }
           // Logika navigasi index lainnya bisa ditambahkan di sini
         },
@@ -218,6 +237,7 @@ class DashboardPage extends StatelessWidget {
           BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Beranda'),
           BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: 'Aktivitas'),
           BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Alat'), // Ikon Keranjang
+          BottomNavigationBarItem(icon: Icon(Icons.person_outlined), label: 'Pengguna'),
           BottomNavigationBarItem(icon: Icon(Icons.insert_drive_file_outlined), label: 'Pengembalian'),
           BottomNavigationBarItem(icon: Icon(Icons.handshake_outlined), label: 'Peminjaman'), // Ikon Peminjaman Baru
         ],

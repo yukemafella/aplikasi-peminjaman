@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/admin_pengguna_page.dart';
+import 'package:flutter_application_1/peminjaman_page.dart';
+import 'package:flutter_application_1/pengembalian_admin_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dashboard_page.dart';
 import 'aktivitas_page.dart'; // Pastikan file ini ada
@@ -221,17 +224,27 @@ class _AlatPageState extends State<AlatPage> {
               MaterialPageRoute(builder: (context) => const  AktivitasPage()),
             );
           } else if (index == 2) {
-            fetchAlat(); // Refresh data jika menekan menu yang sama
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const AdminPenggunaPage()),
+            );
           } else if (index == 3) {
-            // Navigasi Laporan (Jika sudah ada filenya)
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const  PengembalianAdminPage()),
+            );
           } else if (index == 4) {
-            // Navigasi Peminjaman (Jika sudah ada filenya)
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const  PeminjamanPage()),
+            );
           }
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Beranda'),
           BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: 'Aktivitas'),
           BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Alat'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Pengguna'),
           BottomNavigationBarItem(icon: Icon(Icons.insert_drive_file_outlined), label: 'Pengembalian'),
           BottomNavigationBarItem(icon: Icon(Icons.handshake_outlined), label: 'Peminjaman'),
         ],

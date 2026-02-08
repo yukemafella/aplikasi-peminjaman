@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/admin_page.dart';
+import 'package:flutter_application_1/admin_pengguna_page.dart';
+import 'package:flutter_application_1/peminjaman_page.dart';
+import 'package:flutter_application_1/pengembalian_admin_page.dart';
 import 'dashboard_page.dart';
 import 'alat_page.dart';
 
@@ -84,6 +88,12 @@ class _AktivitasPageState extends State<AktivitasPage> {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardPage()));
           } else if (index == 2) {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AlatPage()));
+          }else if (index == 3) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AdminPenggunaPage()));
+          }else if (index == 4) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PengembalianAdminPage()));
+          }else if (index == 5) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PeminjamanPage()));
           }
           // Tambahkan navigasi index lain di sini
         },
@@ -91,8 +101,9 @@ class _AktivitasPageState extends State<AktivitasPage> {
           BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Beranda'),
           BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: 'Aktivitas'),
           BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Alat'),
-          BottomNavigationBarItem(icon: Icon(Icons.insert_drive_file_outlined), label: 'Laporan'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: 'Pengaturan'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Pengguna'),
+          BottomNavigationBarItem(icon: Icon(Icons.insert_drive_file_outlined), label: 'Pengembalian'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: 'Peminjaman'),
         ],
       ),
     );
