@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DashboardPetugas extends StatefulWidget {
   const DashboardPetugas({super.key});
@@ -8,256 +9,232 @@ class DashboardPetugas extends StatefulWidget {
 }
 
 class _DashboardPetugasState extends State<DashboardPetugas> {
-  // Index aktif untuk navigasi bawah
-  int _currentIndex = 0;
+  final supabase = Supabase.instance.client;
 
-  // List halaman untuk ditampilkan berdasarkan navigasi
-  late final List<Widget> _pages;
+  List<Map<String, dynamic>> users = [];
+  bool isLoading = true;
+  String? currentUserRole;
 
   @override
   void initState() {
     super.initState();
-    _pages = [
-      _buildBeranda(),      // Index 0: Tampilan Dashboard (Grafik & List)
-      _buildPersetujuan(),  // Index 1: Tampilan Persetujuan (Sesuai Gambar Baru)
-      const Center(child: Text("Halaman Pengembalian")), // Index 2
-      const Center(child: Text("Halaman Laporan")),      // Index 3
-      const Center(child: Text("Halaman Pengaturan")),   // Index 4
-    ];
+    _init();
   }
 
+  Future<void> _init() async {
+    await _getCurrentUserRole();
+    await _fetchUsers();
+    _listenRealtimeUsers();
+  }
+
+  // ================= GET ROLE LOGIN =================
+  Future<void> _getCurrentUserRole() async {
+    final user = supabase.auth.currentUser;
+    if (user == null) return;
+
+    final data = await supabase
+        .from('users')
+        .select('role')
+        .eq('id_user', user.id)
+        .single();
+
+    setState(() {
+      currentUserRole = data['role'];
+    });
+  }
+
+  // ================= FETCH USERS =================
+  Future<void> _fetchUsers() async {
+    setState(() => isLoading = true);
+
+    final data = await supabase.from('users').select();
+
+    setState(() {
+      users = List<Map<String, dynamic>>.from(data);
+      isLoading = false;
+    });
+  }
+
+  // ================= REALTIME =================
+  void _listenRealtimeUsers() {
+    supabase.from('users').stream(primaryKey: ['id_user']).listen((data) {
+      setState(() {
+        users = List<Map<String, dynamic>>.from(data);
+      });
+    });
+  }
+
+  // ================= BUILD =================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: _pages[_currentIndex],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
+      appBar: AppBar(
+        title: const Text("User Management"),
         backgroundColor: const Color(0xFF3488BC),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white70,
-        selectedFontSize: 10,
-        unselectedFontSize: 10,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Beranda"),
-          BottomNavigationBarItem(icon: Icon(Icons.assignment_turned_in), label: "Persetujuan"),
-          BottomNavigationBarItem(icon: Icon(Icons.keyboard_return), label: "Pengembalian"),
-          BottomNavigationBarItem(icon: Icon(Icons.insert_drive_file), label: "Laporan"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Pengaturan"),
-        ],
       ),
-    );
-  }
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : users.isEmpty
+              ? const Center(child: Text("Tidak ada user"))
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: users.length,
+                  itemBuilder: (context, index) {
+                    final user = users[index];
 
-  // --- LOGIKA HALAMAN BERANDA (DATA ANDA SEBELUMNYA) ---
-  Widget _buildBeranda() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.black12,
-                child: Icon(Icons.person, size: 40, color: Colors.black),
-              ),
-              const SizedBox(width: 15),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text("Yuke", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text("Petugas", style: TextStyle(color: Colors.grey)),
-                ],
-              )
-            ],
-          ),
-          const SizedBox(height: 40),
-          const Center(
-            child: Text("Grafik alat yang sering di pinjam",
-              style: TextStyle(fontWeight: FontWeight.w500)),
-          ),
-          const SizedBox(height: 20),
-          Container(
-            height: 150,
-            width: double.infinity,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                _buildBar(130, Colors.grey.shade100),
-                _buildBar(100, Colors.blue.shade400),
-                _buildBar(80, Colors.grey.shade100),
-                _buildBar(120, Colors.blue.shade400),
-                _buildBar(60, Colors.grey.shade100),
-                _buildBar(90, Colors.blue.shade400),
-              ],
-            ),
-          ),
-          const Divider(height: 50),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("Alat yang di Pinjam",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              TextButton(
-                onPressed: () {},
-                style: TextButton.styleFrom(backgroundColor: Colors.grey.shade200),
-                child: const Text("Detail", style: TextStyle(color: Colors.black54)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          _itemPinjam("Bola basket", "Olahraga", Icons.sports_basketball, "1 unit"),
-          _itemPinjam("Gitar", "Musik", Icons.music_note, "1 unit"),
-        ],
-      ),
-    );
-  }
-
-  // --- LOGIKA HALAMAN PERSETUJUAN (SESUAI GAMBAR BARU) ---
-  Widget _buildPersetujuan() {
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          color: Colors.grey[200],
-          padding: const EdgeInsets.all(16),
-          child: const Text("Persetujuan", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        ),
-        const SizedBox(height: 15),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildFilterTab("Perlu disetujui", true),
-              _buildFilterTab("Disetujui", false),
-              _buildFilterTab("Ditolak", false),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            children: [
-              _buildCardPersetujuan("Aditya", "aditya@gmail.com", "Bola Basket", "06/01/2026"),
-              _buildCardPersetujuan("Sanjaya", "sanjaya@gmail.com", "Gitar", "06/01/2026"),
-            ],
-          ),
-        )
-      ],
-    );
-  }
-
-  // --- HELPER WIDGETS (LOGIKA ANDA TETAP SAMA) ---
-
-  Widget _buildBar(double height, Color color) {
-    return Container(
-      width: 30,
-      height: height,
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
-    );
-  }
-
-  Widget _itemPinjam(String nama, String kategori, IconData icon, String unit) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundColor: Colors.orange.shade100,
-            child: Icon(icon, color: Colors.orange.shade800),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(nama, style: const TextStyle(fontWeight: FontWeight.bold)),
-                Text(kategori, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(5)),
-            child: Text(unit, style: const TextStyle(fontSize: 12)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterTab(String title, bool isActive) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: isActive ? const Color(0xFF3488BC) : Colors.grey[200],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(title, style: TextStyle(color: isActive ? Colors.white : Colors.black, fontSize: 12)),
-    );
-  }
-
-  Widget _buildCardPersetujuan(String name, String email, String item, String date) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const CircleAvatar(radius: 20, child: Icon(Icons.person)),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text(email, style: const TextStyle(fontSize: 12, color: Colors.blue)),
-                  ],
+                    return Card(
+                      child: ListTile(
+                        title: Text(user['nama'] ?? ''),
+                        subtitle: Text("Role: ${user['role']}"),
+                        trailing: currentUserRole == 'admin'
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.blue),
+                                    onPressed: () => _editRole(user),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
+                                    onPressed: () =>
+                                        _deleteUser(user['id_user']),
+                                  ),
+                                ],
+                              )
+                            : null,
+                      ),
+                    );
+                  },
                 ),
-              ),
-              const Icon(Icons.more_vert)
-            ],
-          ),
-          const Divider(),
-          Row(
-            children: [
-              const Icon(Icons.sports_basketball, color: Colors.orange, size: 40),
-              const SizedBox(width: 15),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(item, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  Text(date, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                ],
-              ),
-            ],
-          ),
+      floatingActionButton: currentUserRole == 'admin'
+          ? FloatingActionButton(
+              backgroundColor: Colors.orange,
+              child: const Icon(Icons.add),
+              onPressed: _addUserDialog,
+            )
+          : null,
+    );
+  }
+
+  // ================= ADD USER =================
+  void _addUserDialog() {
+    final namaController = TextEditingController();
+    String selectedRole = 'peminjam';
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Tambah User"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: namaController,
+              decoration: const InputDecoration(labelText: "Nama"),
+            ),
+            const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              value: selectedRole,
+              items: const [
+                DropdownMenuItem(value: 'admin', child: Text("Admin")),
+                DropdownMenuItem(value: 'petugas', child: Text("Petugas")),
+                DropdownMenuItem(value: 'peminjam', child: Text("Peminjam")),
+              ],
+              onChanged: (value) {
+                selectedRole = value!;
+              },
+            )
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              if (namaController.text.isEmpty) return;
+
+              try {
+                await supabase.from('users').insert({
+                  'nama': namaController.text,
+                  'role': selectedRole,
+                });
+
+                Navigator.pop(context);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("User berhasil ditambahkan")),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error: $e")),
+                );
+              }
+            },
+            child: const Text("Simpan"),
+          )
         ],
       ),
     );
+  }
+
+  // ================= EDIT ROLE =================
+  void _editRole(Map user) {
+    String selectedRole = user['role'];
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Edit Role"),
+        content: DropdownButtonFormField<String>(
+          value: selectedRole,
+          items: const [
+            DropdownMenuItem(value: 'admin', child: Text("Admin")),
+            DropdownMenuItem(value: 'petugas', child: Text("Petugas")),
+            DropdownMenuItem(value: 'peminjam', child: Text("Peminjam")),
+          ],
+          onChanged: (value) {
+            selectedRole = value!;
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              try {
+                await supabase
+                    .from('users')
+                    .update({'role': selectedRole})
+                    .eq('id_user', user['id_user']);
+
+                Navigator.pop(context);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Role berhasil diupdate")),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error: $e")),
+                );
+              }
+            },
+            child: const Text("Update"),
+          )
+        ],
+      ),
+    );
+  }
+
+  // ================= DELETE =================
+  Future<void> _deleteUser(String id) async {
+    try {
+      await supabase.from('users').delete().eq('id_user', id);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("User berhasil dihapus")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
   }
 }

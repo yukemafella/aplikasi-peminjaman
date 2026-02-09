@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/admin_pengguna_page.dart';
-import 'dashboard_page.dart';
+import 'package:flutter_application_1/petugas_Dashboard_page.dart';
+import 'package:flutter_application_1/admin_dashboard_page.dart';
 import 'alat_page.dart';
 import 'admin_pengguna_page.dart';
 import 'aktivitas_page.dart';
@@ -19,7 +19,7 @@ class _AdminPageState extends State<AdminPage> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
-    DashboardPage(),
+    AdminDashboardPage(),
     AlatPage(),
     AdminPenggunaPage(),
     AktivitasPage(),

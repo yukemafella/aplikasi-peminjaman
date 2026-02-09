@@ -1,26 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/admin_page.dart';
 import 'package:flutter_application_1/admin_pengguna_page.dart';
+import 'package:flutter_application_1/core/dashboard/dashboard_page.dart';
 import 'package:flutter_application_1/peminjaman_page.dart';
 import 'package:flutter_application_1/pengembalian_admin_page.dart';
-import 'dashboard_page.dart';
+import 'admin_dashboard_page.dart';
 import 'alat_page.dart';
-
-class Riwayat {
-  final String nama;
-  final String alat;
-  final String tanggal;
-  final String status;
-  final IconData icon;
-
-  Riwayat({
-    required this.nama,
-    required this.alat,
-    required this.tanggal,
-    required this.status,
-    required this.icon,
-  });
-}
 
 class AktivitasPage extends StatefulWidget {
   const AktivitasPage({super.key});
@@ -30,41 +15,12 @@ class AktivitasPage extends StatefulWidget {
 }
 
 class _AktivitasPageState extends State<AktivitasPage> {
+  // Index untuk filter kategori
   int selectedFilterIndex = 0;
   final List<String> filters = ["Semua", "Dipinjam", "Kembali", "Terlambat"];
 
-  // Daftar data riwayat
-  final List<Riwayat> daftarRiwayat = [
-    Riwayat(
-      nama: "Sanjaya",
-      alat: "Bola futsal",
-      tanggal: "06, jan 2026 - 09, jan 2026",
-      status: "Dipinjam",
-      icon: Icons.sports_soccer,
-    ),
-    Riwayat(
-      nama: "Adit",
-      alat: "Bola Basket",
-      tanggal: "06, jan 2026 - 09, jan 2026",
-      status: "Kembali",
-      icon: Icons.sports_basketball,
-    ),
-    Riwayat(
-      nama: "Elingga",
-      alat: "Seruling",
-      tanggal: "1, jan 2026 - 5, jan 2026",
-      status: "Terlambat",
-      icon: Icons.music_note,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    List<Riwayat> dataTampil = daftarRiwayat.where((item) {
-      if (selectedFilterIndex == 0) return true;
-      return item.status == filters[selectedFilterIndex];
-    }).toList();
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -78,6 +34,7 @@ class _AktivitasPageState extends State<AktivitasPage> {
       ),
       body: Column(
         children: [
+          // Row Filter (Semua, Dipinjam, dll)
           Container(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
             child: Row(
@@ -87,29 +44,59 @@ class _AktivitasPageState extends State<AktivitasPage> {
               }),
             ),
           ),
+         
+          // List Item Riwayat
           Expanded(
-            child: ListView.builder(
+            child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 15),
-              itemCount: dataTampil.length,
-              itemBuilder: (context, index) {
-                return _buildHistoryCard(dataTampil[index]);
-              },
+              children: [
+                _buildHistoryCard(
+                  name: "Sanjaya",
+                  item: "Bola futsal",
+                  date: "06, jan 2026 - 09, jan 2026",
+                  status: "Dipinjam",
+                  image: Icons.sports_soccer, // Ganti dengan Image.network jika ada URL
+                ),
+                _buildHistoryCard(
+                  name: "Adit",
+                  item: "Bola Basket",
+                  date: "06, jan 2026 - 09, jan 2026",
+                  status: "Dikembalikan",
+                  image: Icons.sports_basketball,
+                ),
+                _buildHistoryCard(
+                  name: "Elingga",
+                  item: "Seruling",
+                  date: "1, jan 2026 - 5, jan 2026",
+                  status: "Terlambat",
+                  image: Icons.music_note,
+                ),
+              ],
             ),
           ),
         ],
       ),
+     
+      // Bottom Navbar sesuai mockup
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: const Color(0xFF3488BC),
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white70,
-        currentIndex: 1, 
+        currentIndex: 1, // Aktivitas/Riwayat aktif
         onTap: (index) {
-          if (index == 0) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardPage()));
-          if (index == 2) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AlatPage()));
-          if (index == 3) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AdminPenggunaPage()));
-          if (index == 4) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PengembalianAdminPage()));
-          if (index == 5) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PeminjamanPage()));
+          if (index == 0) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AdminDashboardPage()));
+          } else if (index == 2) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AlatPage()));
+          }else if (index == 3) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AdminPenggunaPage()));
+          }else if (index == 4) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PengembalianAdminPage()));
+          }else if (index == 5) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PeminjamanPage()));
+          }
+          // Tambahkan navigasi index lain di sini
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Beranda'),
@@ -123,6 +110,7 @@ class _AktivitasPageState extends State<AktivitasPage> {
     );
   }
 
+  // Widget Tombol Filter
   Widget _buildFilterButton(int index) {
     bool isSelected = selectedFilterIndex == index;
     return GestureDetector(
@@ -145,22 +133,21 @@ class _AktivitasPageState extends State<AktivitasPage> {
     );
   }
 
-  Widget _buildHistoryCard(Riwayat data) {
-    Color statusBgColor;
-    Color textColor;
-    String labelText = data.status;
+  // Widget Kartu Riwayat
+  Widget _buildHistoryCard({
+    required String name,
+    required String item,
+    required String date,
+    required String status,
+    required IconData image,
+  }) {
+    Color statusColor;
+    // ignore: curly_braces_in_flow_control_structures
+    if (status == "Dipinjam") statusColor = Colors.orange.shade100;
+    else if (status == "Dikembalikan") statusColor = Colors.green.shade100;
+    else statusColor = Colors.red.shade100;
 
-    if (data.status == "Dipinjam") {
-      statusBgColor = Colors.orange.shade100;
-      textColor = Colors.orange.shade900;
-    } else if (data.status == "Kembali") {
-      statusBgColor = Colors.green.shade100;
-      textColor = Colors.green.shade900;
-      labelText = "Dikembalikan";
-    } else {
-      statusBgColor = Colors.red.shade100;
-      textColor = Colors.red.shade900;
-    }
+    Color textColor = status == "Dipinjam" ? Colors.orange.shade900 : (status == "Dikembalikan" ? Colors.green.shade900 : Colors.red.shade900);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
@@ -174,42 +161,45 @@ class _AktivitasPageState extends State<AktivitasPage> {
       ),
       child: Row(
         children: [
+          // Gambar Ilustrasi
           Container(
             height: 60, width: 60,
             decoration: BoxDecoration(color: Colors.grey.shade100, shape: BoxShape.circle),
-            child: Icon(data.icon, color: Colors.brown, size: 35),
+            child: Icon(image, color: Colors.brown, size: 35),
           ),
           const SizedBox(width: 15),
+          // Info Teks
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(data.nama, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                Text(data.alat, style: const TextStyle(color: Colors.black87, fontSize: 13)),
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(item, style: const TextStyle(color: Colors.black87, fontSize: 13)),
                 Row(
                   children: [
                     const Icon(Icons.calendar_month, size: 14, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text(data.tanggal, style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                    Text(date, style: const TextStyle(color: Colors.grey, fontSize: 11)),
                   ],
                 ),
                 const SizedBox(height: 8),
+                // Label Status & Tombol Hapus
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: statusBgColor, borderRadius: BorderRadius.circular(4)),
+                      decoration: BoxDecoration(color: statusColor, borderRadius: BorderRadius.circular(4)),
                       child: Row(
                         children: [
-                          Icon(data.status == "Kembali" ? Icons.check_circle : Icons.info, size: 12, color: textColor),
+                          Icon(status == "Dikembalikan" ? Icons.check_circle : Icons.info, size: 12, color: textColor),
                           const SizedBox(width: 4),
-                          Text(labelText, style: TextStyle(color: textColor, fontSize: 10, fontWeight: FontWeight.bold)),
+                          Text(status, style: TextStyle(color: textColor, fontSize: 10, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => _showDeleteDialog(data), // Kirim data spesifik ke dialog
+                      onTap: () => _showDeleteDialog(),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(4)),
@@ -232,7 +222,8 @@ class _AktivitasPageState extends State<AktivitasPage> {
     );
   }
 
-  void _showDeleteDialog(Riwayat item) {
+  // Dialog Konfirmasi Hapus sesuai mockup
+  void _showDeleteDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -242,21 +233,26 @@ class _AktivitasPageState extends State<AktivitasPage> {
           children: [
             const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 50),
             const SizedBox(height: 15),
-            const Text("Hapus Riwayat?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const Text(
+              "Hapus Riwayat?",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
             const SizedBox(height: 8),
-            const Text("Data riwayat akan dihapus permanen", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 14)),
+            const Text(
+              "Data riwayat akan dihapus permanen",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey, fontSize: 14),
+            ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text("Batal")),
+                OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Batal"),
+                ),
                 ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      daftarRiwayat.remove(item); // Menghapus data dari list utama
-                    });
-                    Navigator.pop(context); // Tutup dialog
-                  },
+                  onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                   child: const Text("Ya, Hapus", style: TextStyle(color: Colors.white)),
                 ),
