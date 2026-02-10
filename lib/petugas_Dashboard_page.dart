@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/peminjam_persetujuan_page.dart';
+import 'package:flutter_application_1/petugas_laporan_page.dart';
+import 'package:flutter_application_1/petugas_pengaturan_page.dart';
+import 'package:flutter_application_1/petugas_pengembalian_page.dart';
+import 'package:flutter_application_1/petugas_pinjam_page.dart';
 
 class DashboardPetugasPage extends StatelessWidget {
   const DashboardPetugasPage({super.key});
@@ -82,6 +87,30 @@ class DashboardPetugasPage extends StatelessWidget {
         backgroundColor: const Color(0xFF3488BC),
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.black,
+        currentIndex: 0,
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PetugasPinjamPage()),
+            );
+          }else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PetugasPengembalianPage()),
+            );
+          }else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PetugasLaporanPage()),
+            );
+        }else if (index == 4) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PetugasPengaturanPage()),
+            );
+        }
+        },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Beranda"),
           BottomNavigationBarItem(icon: Icon(Icons.assignment_turned_in), label: "Persetujuan"),
@@ -89,7 +118,7 @@ class DashboardPetugasPage extends StatelessWidget {
           BottomNavigationBarItem(icon: Icon(Icons.description), label: "Laporan"),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Pengaturan"),
         ],
-      ),
+    ),
     );
   }
 

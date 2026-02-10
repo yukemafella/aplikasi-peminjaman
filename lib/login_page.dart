@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/dashboard_petugas_page.dart';
 import 'package:flutter_application_1/peminjam_dashboard_page.dart';
+import 'package:flutter_application_1/petugas_Dashboard_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_application_1/core/dashboard/dashboard_page.dart';
 import 'admin_dashboard_page.dart';
@@ -51,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => const DashboardPetugas(),
+              builder: (context) => const DashboardPetugasPage(),
             ),
           );
         } 
