@@ -21,92 +21,129 @@ class _DashboardPetugasState extends State<DashboardPetugas> {
     _init();
   }
 
+  // Fungsi inisialisasi awal
   Future<void> _init() async {
-    await _getCurrentUserRole();
-    await _fetchUsers();
-    _listenRealtimeUsers();
+    try {
+      // Menjalankan kedua fungsi secara paralel agar lebih cepat
+      await Future.wait([
+        _getCurrentUserRole(),
+        _fetchUsers(),
+      ]);
+      _listenRealtimeUsers();
+    } catch (e) {
+      debugPrint("Init Error: $e");
+    } finally {
+      // Memastikan loading berhenti apa pun yang terjadi
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
   }
 
-  // ================= GET ROLE LOGIN =================
+  // ================= GET ROLE LOGIN (FIXED) =================
   Future<void> _getCurrentUserRole() async {
-    final user = supabase.auth.currentUser;
-    if (user == null) return;
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) return;
 
-    final data = await supabase
-        .from('users')
-        .select('role')
-        .eq('id_user', user.id)
-        .single();
+      // Menggunakan maybeSingle() agar tidak stuck jika ID tidak ditemukan
+      final data = await supabase
+          .from('users')
+          .select('role')
+          .eq('id_user', user.id)
+          .maybeSingle();
 
-    setState(() {
-      currentUserRole = data['role'];
-    });
+      if (mounted && data != null) {
+        setState(() {
+          currentUserRole = data['role'];
+        });
+      }
+    } catch (e) {
+      debugPrint("Error Get Role: $e");
+    }
   }
 
-  // ================= FETCH USERS =================
+  // ================= FETCH USERS (FIXED) =================
   Future<void> _fetchUsers() async {
-    setState(() => isLoading = true);
-
-    final data = await supabase.from('users').select();
-
-    setState(() {
-      users = List<Map<String, dynamic>>.from(data);
-      isLoading = false;
-    });
+    if (!mounted) return;
+    // Kita tidak perlu setState loading di sini karena sudah diatur di _init()
+    
+    try {
+      final data = await supabase.from('users').select();
+      if (mounted) {
+        setState(() {
+          users = List<Map<String, dynamic>>.from(data);
+        });
+      }
+    } catch (e) {
+      debugPrint("Error Fetch Users: $e");
+    }
+    // Variabel isLoading akan diubah di fungsi _init menggunakan finally
   }
 
   // ================= REALTIME =================
   void _listenRealtimeUsers() {
     supabase.from('users').stream(primaryKey: ['id_user']).listen((data) {
-      setState(() {
-        users = List<Map<String, dynamic>>.from(data);
-      });
+      if (mounted) {
+        setState(() {
+          users = List<Map<String, dynamic>>.from(data);
+        });
+      }
     });
   }
 
-  // ================= BUILD =================
+  // ================= BUILD UI =================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("User Management"),
         backgroundColor: const Color(0xFF3488BC),
+        actions: [
+          // Tambahkan tombol refresh manual jika perlu
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _init,
+          )
+        ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : users.isEmpty
-              ? const Center(child: Text("Tidak ada user"))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: users.length,
-                  itemBuilder: (context, index) {
-                    final user = users[index];
-
-                    return Card(
-                      child: ListTile(
-                        title: Text(user['nama'] ?? ''),
-                        subtitle: Text("Role: ${user['role']}"),
-                        trailing: currentUserRole == 'admin'
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit,
-                                        color: Colors.blue),
-                                    onPressed: () => _editRole(user),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.red),
-                                    onPressed: () =>
-                                        _deleteUser(user['id_user']),
-                                  ),
-                                ],
-                              )
-                            : null,
-                      ),
-                    );
-                  },
+              ? const Center(child: Text("Tidak ada data user di database"))
+              : RefreshIndicator(
+                  onRefresh: _init,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: users.length,
+                    itemBuilder: (context, index) {
+                      final user = users[index];
+                      return Card(
+                        elevation: 2,
+                        margin: const EdgeInsets.only(bottom: 10),
+                        child: ListTile(
+                          leading: const CircleAvatar(child: Icon(Icons.person)),
+                          title: Text(user['nama'] ?? 'Tanpa Nama'),
+                          subtitle: Text("Role: ${user['role']}"),
+                          trailing: currentUserRole == 'admin'
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit, color: Colors.blue),
+                                      onPressed: () => _editRole(user),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete, color: Colors.red),
+                                      onPressed: () => _deleteUser(user['id_user']),
+                                    ),
+                                  ],
+                                )
+                              : null,
+                        ),
+                      );
+                    },
+                  ),
                 ),
       floatingActionButton: currentUserRole == 'admin'
           ? FloatingActionButton(
@@ -118,56 +155,46 @@ class _DashboardPetugasState extends State<DashboardPetugas> {
     );
   }
 
-  // ================= ADD USER =================
+  // ================= LOGIKA TAMBAH, EDIT, HAPUS (TETAP SAMA) =================
   void _addUserDialog() {
     final namaController = TextEditingController();
     String selectedRole = 'peminjam';
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Tambah User"),
+      builder: (context) => AlertDialog(
+        title: const Text("Tambah User Baru"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: namaController,
-              decoration: const InputDecoration(labelText: "Nama"),
+              decoration: const InputDecoration(labelText: "Nama Lengkap"),
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
               value: selectedRole,
-              items: const [
-                DropdownMenuItem(value: 'admin', child: Text("Admin")),
-                DropdownMenuItem(value: 'petugas', child: Text("Petugas")),
-                DropdownMenuItem(value: 'peminjam', child: Text("Peminjam")),
-              ],
-              onChanged: (value) {
-                selectedRole = value!;
-              },
+              items: ['admin', 'petugas', 'peminjam'].map((role) {
+                return DropdownMenuItem(value: role, child: Text(role.toUpperCase()));
+              }).toList(),
+              onChanged: (val) => selectedRole = val!,
+              decoration: const InputDecoration(labelText: "Pilih Role"),
             )
           ],
         ),
         actions: [
-          TextButton(
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Batal")),
+          ElevatedButton(
             onPressed: () async {
               if (namaController.text.isEmpty) return;
-
               try {
                 await supabase.from('users').insert({
                   'nama': namaController.text,
                   'role': selectedRole,
                 });
-
-                Navigator.pop(context);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("User berhasil ditambahkan")),
-                );
+                if (context.mounted) Navigator.pop(context);
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Error: $e")),
-                );
+                debugPrint("Insert Error: $e");
               }
             },
             child: const Text("Simpan"),
@@ -177,43 +204,31 @@ class _DashboardPetugasState extends State<DashboardPetugas> {
     );
   }
 
-  // ================= EDIT ROLE =================
   void _editRole(Map user) {
     String selectedRole = user['role'];
-
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Edit Role"),
+      builder: (context) => AlertDialog(
+        title: Text("Edit Role: ${user['nama']}"),
         content: DropdownButtonFormField<String>(
           value: selectedRole,
-          items: const [
-            DropdownMenuItem(value: 'admin', child: Text("Admin")),
-            DropdownMenuItem(value: 'petugas', child: Text("Petugas")),
-            DropdownMenuItem(value: 'peminjam', child: Text("Peminjam")),
-          ],
-          onChanged: (value) {
-            selectedRole = value!;
-          },
+          items: ['admin', 'petugas', 'peminjam'].map((role) {
+            return DropdownMenuItem(value: role, child: Text(role.toUpperCase()));
+          }).toList(),
+          onChanged: (val) => selectedRole = val!,
         ),
         actions: [
-          TextButton(
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Batal")),
+          ElevatedButton(
             onPressed: () async {
               try {
                 await supabase
                     .from('users')
                     .update({'role': selectedRole})
                     .eq('id_user', user['id_user']);
-
-                Navigator.pop(context);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Role berhasil diupdate")),
-                );
+                if (context.mounted) Navigator.pop(context);
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Error: $e")),
-                );
+                debugPrint("Update Error: $e");
               }
             },
             child: const Text("Update"),
@@ -223,18 +238,16 @@ class _DashboardPetugasState extends State<DashboardPetugas> {
     );
   }
 
-  // ================= DELETE =================
   Future<void> _deleteUser(String id) async {
     try {
       await supabase.from('users').delete().eq('id_user', id);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("User berhasil dihapus")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("User berhasil dihapus")),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
+      debugPrint("Delete Error: $e");
     }
   }
 }

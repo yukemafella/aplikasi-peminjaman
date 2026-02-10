@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/dashboard_petugas_page.dart';
+import 'package:flutter_application_1/peminjam_dashboard_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_application_1/core/dashboard/dashboard_page.dart';
 import 'admin_dashboard_page.dart';
-
+import 'package:flutter_application_1/dashboard_peminjam_page.dart';
+// IMPORT halaman dashboard peminjam Anda di sini:
+// import 'dashboard_peminjam_page.dart'; 
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -33,8 +36,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       setState(() => _isLoading = true);
 
-      final response =
-          await Supabase.instance.client.auth.signInWithPassword(
+      final response = await Supabase.instance.client.auth.signInWithPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -42,14 +44,28 @@ class _LoginPageState extends State<LoginPage> {
       if (response.user != null) {
         if (!mounted) return;
 
-        if (_emailController.text.contains('petugas')) {
+        final email = _emailController.text.toLowerCase();
+
+        // LOGIKA NAVIGASI BERDASARKAN ROLE
+        if (email.contains('petugas')) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => const DashboardPetugas(),
             ),
           );
-        } else {
+        } 
+        // --- TAMBAHAN KODE UNTUK PEMINJAM ---
+        else if (email.contains('peminjam')) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const DashboardPeminjam(), // Ganti dengan nama class dashboard peminjam Anda
+            ),
+          );
+        } 
+        // ------------------------------------
+        else {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
