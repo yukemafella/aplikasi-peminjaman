@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
-// Import navigasi Anda
+// Import halaman navigasi lainnya
 import 'admin_dashboard_page.dart';
 import 'aktivitas_page.dart';
 import 'admin_pengguna_page.dart';
@@ -20,28 +20,28 @@ class AlatPage extends StatefulWidget {
 }
 
 class _AlatPageState extends State<AlatPage> {
-  String selectedCategory = 'All';
-  bool isLoading = true;
-  List<Map<String, dynamic>> alatList = [];
-  int _currentIndex = 2;
+  String selectedCategory = 'All'; 
+  bool isLoading = true;          
+  List<Map<String, dynamic>> alatList = []; 
+  int _currentIndex = 2;          
 
   @override
   void initState() {
     super.initState();
-    fetchAlat();
+    fetchAlat(); 
   }
 
   Future<void> fetchAlat() async {
     try {
-      setState(() => isLoading = true);
+      setState(() => isLoading = true); 
       final response = await Supabase.instance.client
           .from('alat')
-          .select()
-          .order('id_alat', ascending: true);
+          .select() 
+          .order('id_alat', ascending: true); 
 
       setState(() {
-        alatList = List<Map<String, dynamic>>.from(response);
-        isLoading = false;
+        alatList = List<Map<String, dynamic>>.from(response); 
+        isLoading = false; 
       });
     } catch (e) {
       debugPrint("ERROR SUPABASE: $e");
@@ -75,7 +75,7 @@ class _AlatPageState extends State<AlatPage> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator()) 
             : Column(
                 children: [
                   Padding(
@@ -109,10 +109,10 @@ class _AlatPageState extends State<AlatPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       itemCount: filteredAlat.length,
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
+                        crossAxisCount: 2, 
                         mainAxisSpacing: 12,
                         crossAxisSpacing: 12,
-                        childAspectRatio: 0.8,
+                        childAspectRatio: 0.75, // Disesuaikan agar kotak lebih tinggi sedikit
                       ),
                       itemBuilder: (context, index) {
                         final alat = filteredAlat[index];
@@ -124,7 +124,6 @@ class _AlatPageState extends State<AlatPage> {
                 ],
               ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 70),
         child: Column(
@@ -138,7 +137,7 @@ class _AlatPageState extends State<AlatPage> {
                   context,
                   MaterialPageRoute(builder: (context) => const FormTambahAlatPage()),
                 );
-                if (result == true) fetchAlat();
+                if (result == true) fetchAlat(); 
               },
               child: const Icon(Icons.add, color: Colors.white),
             ),
@@ -187,6 +186,7 @@ class _AlatPageState extends State<AlatPage> {
     );
   }
 
+  // PERBAIKAN UTAMA DI SINI AGAR GAMBAR TIDAK TERPOTONG
   Widget _buildAlatCard(Map<String, dynamic> alat, bool tersedia) {
     return Container(
       padding: const EdgeInsets.all(8),
@@ -208,19 +208,34 @@ class _AlatPageState extends State<AlatPage> {
               child: Text(alat['status'] ?? '', style: const TextStyle(color: Colors.white, fontSize: 10)),
             ),
           ),
-          const Spacer(),
-          Container(
-            height: 70, width: double.infinity,
-            decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
-            child: (alat['foto'] != null && alat['foto'].toString().isNotEmpty)
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(alat['foto'], fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image)),
-                  )
-                : const Icon(Icons.image, color: Colors.grey),
+          const SizedBox(height: 4),
+          // Menggunakan Expanded agar gambar mengambil sisa ruang yang tersedia
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: (alat['foto'] != null && alat['foto'].toString().isNotEmpty)
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        alat['foto'],
+                        fit: BoxFit.contain, // Gambar akan tampil penuh tanpa terpotong
+                        errorBuilder: (c, e, s) => const Icon(Icons.broken_image, color: Colors.grey),
+                      ),
+                    )
+                  : const Icon(Icons.image, color: Colors.grey),
+            ),
           ),
           const SizedBox(height: 8),
-          Text(alat['nama_alat'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(
+            alat['nama_alat'] ?? '', 
+            style: const TextStyle(fontWeight: FontWeight.bold), 
+            maxLines: 1, 
+            overflow: TextOverflow.ellipsis
+          ),
           Text('Stok : ${alat['stok']} Unit', style: const TextStyle(fontSize: 12, color: Colors.grey)),
         ],
       ),
@@ -238,22 +253,23 @@ class FormTambahAlatPage extends StatefulWidget {
 class _FormTambahAlatPageState extends State<FormTambahAlatPage> {
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _stokController = TextEditingController();
-  String _selectedKategori = 'Camera';
-  bool _isSaving = false;
+  String _selectedKategori = 'Olahraga';
+  bool _isSaving = false; 
 
-  XFile? _pickedFile; 
-  Uint8List? _webImage; 
+  XFile? _pickedFile;    
+  Uint8List? _webImage;  
   final ImagePicker _picker = ImagePicker();
+  
   final Map<String, int> _kategoriMap = {'Olahraga': 1, 'Seni': 2, 'Camera': 3};
 
   Future<void> _pickImage() async {
     final XFile? image = await _picker.pickImage(
       source: ImageSource.gallery,
-      imageQuality: 70,
+      imageQuality: 70, 
     );
     
     if (image != null) {
-      final bytes = await image.readAsBytes();
+      final bytes = await image.readAsBytes(); 
       setState(() {
         _webImage = bytes;
         _pickedFile = image;
@@ -267,18 +283,17 @@ class _FormTambahAlatPageState extends State<FormTambahAlatPage> {
       return;
     }
     
-    setState(() => _isSaving = true);
+    setState(() => _isSaving = true); 
 
     try {
       String? imageUrl;
 
       if (_pickedFile != null && _webImage != null) {
-        final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg'; 
         final path = 'alat_images/$fileName';
 
-        // Logika upload yang mendukung Web & Mobile secara bersamaan tanpa error path
         await Supabase.instance.client.storage
-            .from('foto_alat')
+            .from('foto_alat') 
             .uploadBinary(path, _webImage!);
 
         imageUrl = Supabase.instance.client.storage
@@ -286,26 +301,23 @@ class _FormTambahAlatPageState extends State<FormTambahAlatPage> {
             .getPublicUrl(path);
       }
 
-      // Simpan data ke tabel 'alat'
       await Supabase.instance.client.from('alat').insert({
         'nama_alat': _namaController.text,
         'stok': int.parse(_stokController.text),
         'status': 'Tersedia',
         'id_kategori': _kategoriMap[_selectedKategori],
-        'foto': imageUrl,
+        'foto': imageUrl, 
       });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Alat berhasil ditambahkan!')));
-        Navigator.pop(context, true); // Mengirim 'true' agar halaman utama refresh data
+        Navigator.pop(context, true); 
       }
     } catch (e) {
       debugPrint("Gagal simpan: $e");
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(e.toString().contains("Bucket not found") 
-            ? "Error: Buat bucket 'foto_alat' di Supabase Storage Anda!" 
-            : "Gagal menyimpan: $e"),
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Gagal menyimpan data ke database!"),
           backgroundColor: Colors.red,
         ));
       }
@@ -341,7 +353,7 @@ class _FormTambahAlatPageState extends State<FormTambahAlatPage> {
                 child: _webImage != null 
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(11),
-                        child: Image.memory(_webImage!, fit: BoxFit.cover),
+                        child: Image.memory(_webImage!, fit: BoxFit.cover), 
                       )
                     : const Column(
                         mainAxisAlignment: MainAxisAlignment.center,

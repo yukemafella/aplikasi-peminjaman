@@ -192,8 +192,22 @@ class AdminDashboardPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 15),
-              _buildBorrowedItem("Bola basket", "Olahraga", "1 unit", Icons.sports_basketball),
-              _buildBorrowedItem("Gitar", "Musik", "1 unit", Icons.music_note),
+              
+              // IMPLEMENTASI GAMBAR: Masukkan URL gambar dari Supabase di sini
+              _buildBorrowedItem(
+                "Bola basket", 
+                "Olahraga", 
+                "1 unit", 
+                Icons.sports_basketball,
+                imageUrl: "https://uddtkqdljfgenjibxrwv.supabase.co/storage/v1/object/public/gambar%20alat/bola%20basket.jpg", // Taruh URL Gambar Bola Basket di sini
+              ),
+              _buildBorrowedItem(
+                "Gitar", 
+                "Musik", 
+                "1 unit", 
+                Icons.music_note,
+                imageUrl: "", // Taruh URL Gambar Gitar di sini
+              ),
             ],
           ),
         ),
@@ -206,40 +220,24 @@ class AdminDashboardPage extends StatelessWidget {
         currentIndex: 0,
         onTap: (index) {
           if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const AktivitasPage()),
-            );
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const AktivitasPage()));
           } else if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const AlatPage()),
-            );
-          }else if (index == 3) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const AdminPenggunaPage()),
-            );
-          }else if (index == 4) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => PengembalianAdminPage()),
-            );
-          }else if (index == 5) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const PeminjamanPage()),
-            );
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const AlatPage()));
+          } else if (index == 3) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPenggunaPage()));
+          } else if (index == 4) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => PengembalianAdminPage()));
+          } else if (index == 5) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const PeminjamanPage()));
           }
-          // Logika navigasi index lainnya bisa ditambahkan di sini
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Beranda'),
           BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: 'Aktivitas'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Alat'), // Ikon Keranjang
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: 'Alat'),
           BottomNavigationBarItem(icon: Icon(Icons.person_outlined), label: 'Pengguna'),
           BottomNavigationBarItem(icon: Icon(Icons.insert_drive_file_outlined), label: 'Pengembalian'),
-          BottomNavigationBarItem(icon: Icon(Icons.handshake_outlined), label: 'Peminjaman'), // Ikon Peminjaman Baru
+          BottomNavigationBarItem(icon: Icon(Icons.handshake_outlined), label: 'Peminjaman'),
         ],
       ),
     );
@@ -256,7 +254,8 @@ class AdminDashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBorrowedItem(String name, String category, String unit, IconData icon) {
+  // FUNGSI INI SUDAH DIPERBAIKI AGAR GAMBAR TIDAK TERPOTONG (FULL)
+ Widget _buildBorrowedItem(String name, String category, String unit, IconData icon, {String imageUrl = ""}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -266,10 +265,23 @@ class AdminDashboardPage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 25,
-            backgroundColor: Colors.orange.shade100,
-            child: Icon(icon, color: Colors.orange, size: 30),
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.orange.shade100,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: imageUrl.isNotEmpty
+                ? Image.network(
+                    imageUrl,
+                    // PERUBAHAN DISINI:
+                    fit: BoxFit.contain, // Memastikan seluruh gambar muat di dalam kotak
+                    alignment: Alignment.center, // Menaruh gambar tepat di tengah
+                    errorBuilder: (context, error, stackTrace) => Icon(icon, color: Colors.orange, size: 30),
+                  )
+                : Icon(icon, color: Colors.orange, size: 30),
           ),
           const SizedBox(width: 15),
           Expanded(
