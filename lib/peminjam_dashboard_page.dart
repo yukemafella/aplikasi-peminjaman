@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/petugas_pratinjau_page.dart';
 // Import halaman-halaman lain agar navigasi (perpindahan layar) bisa berfungsi
 import 'peminjam_persetujuan_page.dart'; 
 import 'peminjam_pinjam_page.dart';
@@ -6,7 +7,8 @@ import 'peminjam_kembali_page.dart';
 import 'peminjam_pengaturan_page.dart';
 
 class DashboardPeminjam extends StatelessWidget {
-  const DashboardPeminjam({super.key}); 
+  const DashboardPeminjam({super.key, required String peminjamId}); 
+
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +126,7 @@ class DashboardPeminjam extends StatelessWidget {
         onTap: (index) {
           // Logika Navigasi: Pindah halaman sesuai index yang diklik
           if (index == 1) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PersetujuanPage()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AlatPage()));
           } else if (index == 2) {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PinjamPage()));
           } else if (index == 3) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/admin_page.dart';
-import 'package:flutter_application_1/admin_pengguna_page.dart';
+import 'package:flutter_application_1/user_crud_page.dart';
 import 'package:flutter_application_1/peminjaman_page.dart';
-import 'package:flutter_application_1/pengembalian_admin_page.dart';
+import 'package:flutter_application_1/admin_pengembalian.dart';
 import 'login_page.dart';
 import 'alat_page.dart';
 import 'aktivitas_page.dart';
@@ -224,9 +224,9 @@ class AdminDashboardPage extends StatelessWidget {
           } else if (index == 2) {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const AlatPage()));
           } else if (index == 3) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminPenggunaPage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const UserCrudPage()));
           } else if (index == 4) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => PengembalianAdminPage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const PengembalianAdminPage()));
           } else if (index == 5) {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const PeminjamanPage()));
           }

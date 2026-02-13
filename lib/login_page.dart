@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/dashboard_petugas_page.dart';
 import 'package:flutter_application_1/peminjam_dashboard_page.dart';
-import 'package:flutter_application_1/petugas_Dashboard_page.dart';
+import 'package:flutter_application_1/petugas_dashboard.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_application_1/core/dashboard/dashboard_page.dart';
+
+import 'petugas_beranda_page.dart';
 import 'admin_dashboard_page.dart';
-import 'package:flutter_application_1/dashboard_peminjam_page.dart';
-// IMPORT halaman dashboard peminjam Anda di sini:
-// import 'dashboard_peminjam_page.dart'; 
+import 'dashboard_peminjam_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,10 +17,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
   bool _obscureText = true;
+  bool _isLoading = false;
+
   String? _emailError;
   String? _passwordError;
-  bool _isLoading = false;
 
   Future<void> _handleLogin() async {
     setState(() {
@@ -42,50 +42,57 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text.trim(),
       );
 
-      if (response.user != null) {
-        if (!mounted) return;
+      final user = response.user;
 
-        final email = _emailController.text.toLowerCase();
+      if (user == null) {
+        throw Exception("User tidak ditemukan");
+      }
 
-        // LOGIKA NAVIGASI BERDASARKAN ROLE
-        if (email.contains('petugas')) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const DashboardPetugasPage(),
+      if (!mounted) return;
+
+      final userId = user.id;
+      final email = user.email?.toLowerCase() ?? "";
+
+      // ================= ROLE BASED EMAIL =================
+      if (email.contains('petugas')) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PetugasDashboard(
+              petugasId: userId,
             ),
-          );
-        } 
-        // --- TAMBAHAN KODE UNTUK PEMINJAM ---
-        else if (email.contains('peminjam')) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const DashboardPeminjam(), // Ganti dengan nama class dashboard peminjam Anda
+          ),
+        );
+      } else if (email.contains('peminjam')) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DashboardPeminjam(
+              peminjamId: userId,
             ),
-          );
-        } 
-        // ------------------------------------
-        else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AdminDashboardPage(),
-            ),
-          );
-        }
+          ),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AdminDashboardPage(),
+          ),
+        );
       }
     } catch (e) {
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-              "Login Gagal: Akun tidak ditemukan atau sandi salah"),
+          content: Text("Login gagal: Email atau password salah"),
           backgroundColor: Colors.red,
         ),
       );
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -102,7 +109,7 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(30.0),
+          padding: const EdgeInsets.all(30),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -117,9 +124,13 @@ class _LoginPageState extends State<LoginPage> {
                   color: Colors.blue[900],
                 ),
               ),
-              const Text("Sekolah Pintar",
-                  style: TextStyle(color: Colors.grey)),
+              const Text(
+                "Sekolah Pintar",
+                style: TextStyle(color: Colors.grey),
+              ),
               const SizedBox(height: 40),
+
+              // EMAIL
               const Align(
                   alignment: Alignment.centerLeft,
                   child: Text("Email")),
@@ -133,7 +144,10 @@ class _LoginPageState extends State<LoginPage> {
                   border: const OutlineInputBorder(),
                 ),
               ),
+
               const SizedBox(height: 20),
+
+              // PASSWORD
               const Align(
                   alignment: Alignment.centerLeft,
                   child: Text("Password")),
@@ -154,7 +168,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 40),
+
               SizedBox(
                 width: 150,
                 child: ElevatedButton(
@@ -162,17 +178,22 @@ class _LoginPageState extends State<LoginPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue[500],
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8))
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2),
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
                         )
-                      : const Text("Login",
-                          style: TextStyle(color: Colors.white)),
+                      : const Text(
+                          "Login",
+                          style: TextStyle(color: Colors.white),
+                        ),
                 ),
               ),
             ],

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 // Import semua halaman yang akan ditampilkan di dalam navigasi utama
-import 'package:flutter_application_1/admin_pengguna_page.dart';
-import 'package:flutter_application_1/petugas_Dashboard_page.dart';
+import 'package:flutter_application_1/user_crud_page.dart';
+import 'package:flutter_application_1/petugas_dashboard.dart';
 import 'package:flutter_application_1/admin_dashboard_page.dart';
 import 'alat_page.dart';
 import 'aktivitas_page.dart';
 import 'peminjaman_page.dart';
-import 'pengembalian_admin_page.dart';
+import 'admin_pengembalian.dart';
 
 // Menggunakan StatefulWidget karena kita perlu mengubah variabel '_currentIndex' 
 // saat user mengklik menu di bar bawah (BottomNavigationBar)
@@ -26,7 +26,7 @@ class _AdminPageState extends State<AdminPage> {
   final List<Widget> _pages = const [
     AdminDashboardPage(),     // Index 0
     AlatPage(),               // Index 1
-    AdminPenggunaPage(),      // Index 2
+    UserCrudPage(),      // Index 2
     AktivitasPage(),          // Index 3
     PeminjamanPage(),         // Index 4
     PengembalianAdminPage(),  // Index 5

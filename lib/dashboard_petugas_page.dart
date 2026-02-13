@@ -173,6 +173,7 @@ class _DashboardPetugasState extends State<DashboardPetugas> {
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
+              // ignore: deprecated_member_use
               value: selectedRole,
               items: ['admin', 'petugas', 'peminjam'].map((role) {
                 return DropdownMenuItem(value: role, child: Text(role.toUpperCase()));
@@ -211,6 +212,7 @@ class _DashboardPetugasState extends State<DashboardPetugas> {
       builder: (context) => AlertDialog(
         title: Text("Edit Role: ${user['nama']}"),
         content: DropdownButtonFormField<String>(
+          // ignore: deprecated_member_use
           value: selectedRole,
           items: ['admin', 'petugas', 'peminjam'].map((role) {
             return DropdownMenuItem(value: role, child: Text(role.toUpperCase()));

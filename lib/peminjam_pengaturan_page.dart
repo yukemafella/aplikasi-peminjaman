@@ -165,9 +165,9 @@ class PengaturanPage extends StatelessWidget {
         onTap: (index) {
           // Logika navigasi berdasarkan urutan ikon di bawah
           if (index == 0) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardPeminjam()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardPeminjam(peminjamId: '',)));
           } else if (index == 1) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PersetujuanPage()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AlatPage()));
           } else if (index == 2) {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PinjamPage()));
           } else if (index == 3) {

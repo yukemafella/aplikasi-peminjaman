@@ -29,7 +29,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Aplikasi Alat',
       theme: ThemeData(primarySwatch: Colors.blue),
+      // Tambahkan ini agar Navigator.pushNamed('/login') berfungsi
       home: const LoginPage(),
+      routes: {
+        '/login': (context) => const LoginPage(),
+      },
     );
   }
 }

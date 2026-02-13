@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 // Mengimpor halaman-halaman lain untuk kebutuhan navigasi (pindah halaman)
 import 'package:flutter_application_1/admin_dashboard_page.dart';
-import 'package:flutter_application_1/admin_pengguna_page.dart';
+import 'package:flutter_application_1/user_crud_page.dart';
 import 'package:flutter_application_1/alat_page.dart';
 import 'package:flutter_application_1/peminjaman_page.dart';
-import 'package:flutter_application_1/pengembalian_admin_page.dart';
+import 'package:flutter_application_1/admin_pengembalian.dart';
 
 // Definisi kelas AktivitasPage sebagai StatefulWidget karena ada perubahan state (filter & hapus data)
 class AktivitasPage extends StatefulWidget {
@@ -126,7 +126,7 @@ class _AktivitasPageState extends State<AktivitasPage> {
           } else if (index == 2) {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AlatPage()));
           } else if (index == 3) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AdminPenggunaPage()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const UserCrudPage()));
           } else if (index == 4) {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const PengembalianAdminPage()));
           } else if (index == 5) {

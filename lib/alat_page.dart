@@ -7,8 +7,8 @@ import 'package:image_picker/image_picker.dart';
 // Import halaman navigasi lainnya
 import 'admin_dashboard_page.dart';
 import 'aktivitas_page.dart';
-import 'admin_pengguna_page.dart';
-import 'pengembalian_admin_page.dart';
+import 'user_crud_page.dart';
+import 'admin_pengembalian.dart';
 import 'peminjaman_page.dart';
 import 'kategori_crud.dart';
 
@@ -61,7 +61,7 @@ class _AlatPageState extends State<AlatPage> {
     switch (index) {
       case 0: targetPage = const AdminDashboardPage(); break;
       case 1: targetPage = const AktivitasPage(); break;
-      case 3: targetPage = const AdminPenggunaPage(); break;
+      case 3: targetPage = const UserCrudPage(); break;
       case 4: targetPage = const PengembalianAdminPage(); break;
       case 5: targetPage = const PeminjamanPage(); break;
       default: return;
